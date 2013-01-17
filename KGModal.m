@@ -81,7 +81,7 @@ NSString *const KGModalGradientViewTapped = @"KGModalGradientViewTapped";
     KGModalViewController *viewController = self.viewController = [[KGModalViewController alloc] init];
     self.window.rootViewController = viewController;
 
-    CGFloat padding = 17;
+    CGFloat padding = 0;//17; // no padding
     CGRect containerViewRect = CGRectInset(contentView.bounds, -padding, -padding);
     containerViewRect.origin.x = containerViewRect.origin.y = 0;
     containerViewRect.origin.x = round(CGRectGetMidX(self.window.bounds)-CGRectGetMidX(containerViewRect));
@@ -233,13 +233,14 @@ NSString *const KGModalGradientViewTapped = @"KGModalGradientViewTapped";
     }
 
     CALayer *styleLayer = self.styleLayer = [[CALayer alloc] init];
-    styleLayer.cornerRadius = 4;
-    styleLayer.shadowColor= [[UIColor blackColor] CGColor];
-    styleLayer.shadowOffset = CGSizeMake(0, 0);
-    styleLayer.shadowOpacity = 0.5;
-//    styleLayer.borderWidth = 1;
-//    styleLayer.borderColor = [[UIColor whiteColor] CGColor];
-    styleLayer.frame = CGRectInset(self.bounds, 12, 12);
+    styleLayer.masksToBounds = NO; // so the shadow will draw outside the frame
+    styleLayer.cornerRadius = 10; // to match the dialog radius
+    styleLayer.shadowRadius = 3; // 3 is the default, how far the shadow spreads
+    styleLayer.shadowOffset = CGSizeMake(0, 3); // this drops the shadow
+    styleLayer.shadowOpacity = 1; // 0 transparent, 1 opaque (sorta)
+    styleLayer.borderWidth = 1; // no border no shadow
+    styleLayer.borderColor = [[UIColor blackColor] CGColor]; // no color no shadow
+    styleLayer.frame = CGRectInset(self.bounds, 0, 0); // no inset no shadow?
     [self.layer addSublayer:styleLayer];
     
     return self;
