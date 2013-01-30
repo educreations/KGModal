@@ -222,7 +222,9 @@ NSString *const KGModalGradientViewTapped = @"KGModalGradientViewTapped";
 }
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation{
-    return [[KGModal sharedInstance] shouldRotate];
+//    return [[KGModal sharedInstance] shouldRotate];
+    return (interfaceOrientation == UIDeviceOrientationLandscapeRight
+            || interfaceOrientation == UIDeviceOrientationLandscapeLeft);
 }
 
 @end
@@ -239,8 +241,8 @@ NSString *const KGModalGradientViewTapped = @"KGModalGradientViewTapped";
     styleLayer.shadowColor= [[UIColor blackColor] CGColor];
     styleLayer.shadowOffset = CGSizeMake(0, 0);
     styleLayer.shadowOpacity = 0.5;
-    styleLayer.borderWidth = 1;
-    styleLayer.borderColor = [[UIColor whiteColor] CGColor];
+//    styleLayer.borderWidth = 1;
+//    styleLayer.borderColor = [[UIColor whiteColor] CGColor];
     styleLayer.frame = CGRectInset(self.bounds, 12, 12);
     [self.layer addSublayer:styleLayer];
     self.styleLayer = styleLayer;
