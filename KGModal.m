@@ -227,6 +227,11 @@ NSString *const KGModalGradientViewTapped = @"KGModalGradientViewTapped";
             || interfaceOrientation == UIDeviceOrientationLandscapeLeft);
 }
 
+- (NSUInteger)supportedInterfaceOrientations
+{
+    return UIInterfaceOrientationMaskLandscape;
+}
+
 @end
 
 @implementation KGModalContainerView
