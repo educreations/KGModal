@@ -92,7 +92,7 @@ NSString *const KGModalGradientViewTapped = @"KGModalGradientViewTapped";
     containerView.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin|UIViewAutoresizingFlexibleRightMargin|
     UIViewAutoresizingFlexibleTopMargin|UIViewAutoresizingFlexibleBottomMargin;
     containerView.layer.rasterizationScale = [[UIScreen mainScreen] scale];
-    contentView.frame = (CGRect){padding, padding, contentView.bounds.size};
+    contentView.frame = (CGRect){{padding, padding}, contentView.bounds.size};
     [containerView addSubview:contentView];
     [viewController.view addSubview:containerView];
     self.containerView = containerView;
@@ -296,7 +296,7 @@ NSString *const KGModalGradientViewTapped = @"KGModalGradientViewTapped";
 @implementation KGModalCloseButton
 
 - (id)init{
-    if(!(self = [super initWithFrame:(CGRect){0, 0, 32, 32}])){
+    if(!(self = [super initWithFrame:(CGRect){{0, 0}, {32, 32}}])){
         return nil;
     }
     static UIImage *closeButtonImage;
