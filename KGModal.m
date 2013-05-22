@@ -31,15 +31,17 @@ NSString *const KGModalGradientViewTapped = @"KGModalGradientViewTapped";
 
 @interface KGModal()
 @property (strong, nonatomic) UIWindow *window;
+@property (strong, nonatomic) UIViewController *contentViewController;
 @property (weak, nonatomic) KGModalViewController *viewController;
 @property (weak, nonatomic) KGModalContainerView *containerView;
 @property (weak, nonatomic) KGModalCloseButton *closeButton;
 @property (weak, nonatomic) UIView *contentView;
+
 @end
 
 @implementation KGModal
 
-+ (id)sharedInstance{
++ (instancetype)sharedInstance{
     static id sharedInstance;
     static dispatch_once_t once;
     dispatch_once(&once, ^{
@@ -48,7 +50,7 @@ NSString *const KGModalGradientViewTapped = @"KGModalGradientViewTapped";
     return sharedInstance;
 }
 
-- (id)init{
+- (instancetype)init{
     if(!(self = [super init])){
         return nil;
     }
@@ -73,7 +75,16 @@ NSString *const KGModalGradientViewTapped = @"KGModalGradientViewTapped";
     [self showWithContentView:contentView andAnimated:YES];
 }
 
-- (void)showWithContentView:(UIView *)contentView andAnimated:(BOOL)animated{
+- (void)showWithContentViewController:(UIViewController *)contentViewController{
+    [self showWithContentViewController:contentViewController andAnimated:YES];
+}
+
+- (void)showWithContentViewController:(UIViewController *)contentViewController andAnimated:(BOOL)animated{
+    self.contentViewController = contentViewController;
+    [self showWithContentView:contentViewController.view andAnimated:YES];
+}
+
+- (void)showWithContentView:(UIView *)contentView andAnimated:(BOOL)animated {
     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
     self.window.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
     self.window.opaque = NO;
@@ -96,12 +107,12 @@ NSString *const KGModalGradientViewTapped = @"KGModalGradientViewTapped";
     [containerView addSubview:contentView];
     [viewController.view addSubview:containerView];
     self.containerView = containerView;
-    
+
     KGModalCloseButton *closeButton = [[KGModalCloseButton alloc] init];
     [closeButton addTarget:self action:@selector(closeAction:) forControlEvents:UIControlEventTouchUpInside];
     [closeButton setHidden:!self.showCloseButton];
     [containerView addSubview:closeButton];
-    self.closeButton = closeButton;    
+    self.closeButton = closeButton;
 
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(tapCloseAction:)
                                                  name:KGModalGradientViewTapped object:nil];
@@ -110,7 +121,7 @@ NSString *const KGModalGradientViewTapped = @"KGModalGradientViewTapped";
     // This will cause the window to display
     dispatch_async(dispatch_get_main_queue(), ^{
         [self.window makeKeyAndVisible];
-        
+
         if(animated){
             viewController.styleView.alpha = 0;
             [UIView animateWithDuration:kFadeInAnimationDuration animations:^{
@@ -124,7 +135,7 @@ NSString *const KGModalGradientViewTapped = @"KGModalGradientViewTapped";
                 containerView.alpha = 1;
                 containerView.transform = CGAffineTransformScale(CGAffineTransformIdentity, 1.1, 1.1);
             } completion:^(BOOL finished) {
-                [UIView animateWithDuration:kTransformPart2AnimationDuration delay:0 options:UIViewAnimationCurveEaseOut animations:^{
+                [UIView animateWithDuration:kTransformPart2AnimationDuration delay:0 options:UIViewAnimationOptionCurveEaseOut animations:^{
                     containerView.alpha = 1;
                     containerView.transform = CGAffineTransformScale(CGAffineTransformIdentity, 1, 1);
                 } completion:^(BOOL finished2) {
@@ -172,7 +183,7 @@ NSString *const KGModalGradientViewTapped = @"KGModalGradientViewTapped";
         [UIView animateWithDuration:kTransformPart2AnimationDuration animations:^{
             self.containerView.transform = CGAffineTransformScale(CGAffineTransformIdentity, 1.1, 1.1);
         } completion:^(BOOL finished){
-            [UIView animateWithDuration:kTransformPart1AnimationDuration delay:0 options:UIViewAnimationCurveEaseOut animations:^{
+            [UIView animateWithDuration:kTransformPart1AnimationDuration delay:0 options:UIViewAnimationOptionCurveEaseOut animations:^{
                 self.containerView.alpha = 0;
                 self.containerView.transform = CGAffineTransformScale(CGAffineTransformIdentity, 0.4, 0.4);
             } completion:^(BOOL finished2){
@@ -190,6 +201,7 @@ NSString *const KGModalGradientViewTapped = @"KGModalGradientViewTapped";
     [self.containerView removeFromSuperview];
     [[[[UIApplication sharedApplication] delegate] window] makeKeyWindow];
     [self.window removeFromSuperview];
+    self.contentViewController = nil;
     self.window = nil;
 }
 
@@ -198,6 +210,10 @@ NSString *const KGModalGradientViewTapped = @"KGModalGradientViewTapped";
         _modalBackgroundColor = modalBackgroundColor;
         self.containerView.modalBackgroundColor = modalBackgroundColor;
     }
+}
+
+- (void)dealloc{
+    [self cleanup];
 }
 
 @end
@@ -213,7 +229,7 @@ NSString *const KGModalGradientViewTapped = @"KGModalGradientViewTapped";
 
     self.view.backgroundColor = [UIColor clearColor];
     self.view.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
-    
+
     KGModalGradientView *styleView = [[KGModalGradientView alloc] initWithFrame:self.view.bounds];
     styleView.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
     styleView.opaque = NO;
@@ -236,7 +252,7 @@ NSString *const KGModalGradientViewTapped = @"KGModalGradientViewTapped";
 
 @implementation KGModalContainerView
 
-- (id)initWithFrame:(CGRect)frame{
+- (instancetype)initWithFrame:(CGRect)frame{
     if(!(self = [super initWithFrame:frame])){
         return nil;
     }
@@ -251,7 +267,7 @@ NSString *const KGModalGradientViewTapped = @"KGModalGradientViewTapped";
     styleLayer.frame = CGRectInset(self.bounds, 12, 12);
     [self.layer addSublayer:styleLayer];
     self.styleLayer = styleLayer;
-    
+
     return self;
 }
 
@@ -295,8 +311,8 @@ NSString *const KGModalGradientViewTapped = @"KGModalGradientViewTapped";
 
 @implementation KGModalCloseButton
 
-- (id)init{
-    if(!(self = [super initWithFrame:(CGRect){{0, 0}, {32, 32}}])){
+- (instancetype)init{
+    if(!(self = [super initWithFrame:(CGRect){0, 0, 32, 32}])){
         return nil;
     }
     static UIImage *closeButtonImage;
@@ -310,7 +326,7 @@ NSString *const KGModalGradientViewTapped = @"KGModalGradientViewTapped";
 
 - (UIImage *)closeButtonImage{
     UIGraphicsBeginImageContextWithOptions(self.bounds.size, NO, 0);
-    
+
     //// General Declarations
     CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
     CGContextRef context = UIGraphicsGetCurrentContext();
@@ -321,7 +337,7 @@ NSString *const KGModalGradientViewTapped = @"KGModalGradientViewTapped";
 
     //// Gradient Declarations
     NSArray *gradientColors = @[(id)topGradient.CGColor,
-    (id)bottomGradient.CGColor];
+                                (id)bottomGradient.CGColor];
     CGFloat gradientLocations[] = {0, 1};
     CGGradientRef gradient = CGGradientCreateWithColors(colorSpace, (__bridge CFArrayRef)gradientColors, gradientLocations);
 
